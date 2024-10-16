@@ -1,0 +1,5 @@
+export const GAME_STATUSES = {
+    PENDING: 'PENDING',
+    IN_PROGRESS: 'IN-PROGRESS',
+    FINISHED: 'FINISHED'
+}
