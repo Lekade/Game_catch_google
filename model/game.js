@@ -1,7 +1,7 @@
 import {Position} from "./position.js";
-import {Entity} from "./entity/Entity.js";
-import {GAME_STATUSES} from "./comon/gameStatuses.js";
-import {MOVE_DIRECTIONS} from "./comon/moveDirections.js";
+import {Entity} from "../entity/Entity.js";
+import {GAME_STATUSES} from "../comon/gameStatuses.js";
+import {MOVE_DIRECTIONS} from "../comon/moveDirections.js";
 
 export class Game {
     #status = GAME_STATUSES.PENDING
@@ -21,6 +21,12 @@ export class Game {
         google: {},
         player1: {},
         player2: {}
+    }
+
+    #observers = []
+
+    addEventListener(subscriber){
+        this.#observers.push(subscriber)
     }
 
     constructor(numberUtility) {
@@ -66,6 +72,7 @@ export class Game {
         }
 
         this.#gameEntities.google.position = newPosition
+        this.#observers.forEach(o => o())
     }
 
     async #initPlayersPosition() {
@@ -80,6 +87,7 @@ export class Game {
 
         this.#gameEntities.player1.position = newPosition1
         this.#gameEntities.player2.position = newPosition2
+        this.#observers.forEach(o => o())
     }
 
     async #runGoogleJumpInterval() {
@@ -88,9 +96,10 @@ export class Game {
         }, this.#settings.jumpInterval)
     }
 
-    async start() {
+    async start(settings) {
         console.log('start game')
         // "Принцип единого уровня абстракции" (Single Level of Abstraction Principle, SLAP).
+        if(settings){await this.setSettings(settings)}
         this.#status = GAME_STATUSES.IN_PROGRESS
         await this.#initPlayersPosition();
         await this.#jumpGoogle();
@@ -149,6 +158,7 @@ export class Game {
         if (this.#isPositionBusy(newPosition, player)){
             return;
         }
+        this.#observers.forEach(o => o())
         this.#gameEntities[player].position = newPosition;
         await this.#checkGoogleCatching(newPosition, player)
     }
