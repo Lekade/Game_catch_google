@@ -1,5 +1,5 @@
 import {Position} from "./position.js";
-import {Entity} from "../entity/Entity.js";
+import {Entity} from "./entity/Entity.js";
 import {GAME_STATUSES} from "../comon/gameStatuses.js";
 import {MOVE_DIRECTIONS} from "../comon/moveDirections.js";
 
@@ -25,7 +25,7 @@ export class Game {
 
     #observers = []
 
-    addEventListener(subscriber){
+    addEventListener(subscriber) {
         this.#observers.push(subscriber)
     }
 
@@ -44,7 +44,8 @@ export class Game {
         }
         this.#settings = settings
     }
-    async #newPosition(){
+
+    async #newPosition() {
         return new Position(
             await this.#numberUtility
                 .getRandomNumber(0, this.#settings.gridSize.columnsCount - 1),
@@ -53,35 +54,31 @@ export class Game {
         )
     }
 
-    async #jumpGoogle(iteration = 0) {
-        if (iteration > 100) throw new Error(`Can't find correct cell for ${iteration}`)
+    async #jumpGoogle() {
         // The players must have already been placed on the playing field
-        // create new position
         const newPosition = await this.#newPosition()
 
         // check new posision
-        if ( ( !!this.#gameEntities.google.position && newPosition.isEqual(this.#gameEntities.google.position) )
+        if ((!!this.#gameEntities.google.position && newPosition.isEqual(this.#gameEntities.google.position))
             || newPosition.isEqual(this.#gameEntities.player1.position)
-                || newPosition.isEqual(this.#gameEntities.player2.position)){
-            return this.#jumpGoogle(++iteration);
+            || newPosition.isEqual(this.#gameEntities.player2.position)){
+            return this.#jumpGoogle();
         }
 
-        if (!!this.#gameEntities.google.position){
+        if (!!this.#gameEntities.google.position) {
             this.#gameEntities['google'].points += this.#settings.pointsForJump
             await this.#checkingForAWin('google')
         }
-
         this.#gameEntities.google.position = newPosition
         this.#observers.forEach(o => o())
     }
 
     async #initPlayersPosition() {
         // google must be jump after this initialization
-        // create new position
         const newPosition1 = await this.#newPosition()
         const newPosition2 = await this.#newPosition()
 
-        if((newPosition1).isEqual(newPosition2)){
+        if ((newPosition1).isEqual(newPosition2)) {
             return this.#initPlayersPosition();
         }
 
@@ -98,8 +95,7 @@ export class Game {
 
     async start(settings) {
         console.log('start game')
-        // "Принцип единого уровня абстракции" (Single Level of Abstraction Principle, SLAP).
-        if(settings){await this.setSettings(settings)}
+        if (settings) {await this.setSettings(settings)}
         this.#status = GAME_STATUSES.IN_PROGRESS
         await this.#initPlayersPosition();
         await this.#jumpGoogle();
@@ -110,17 +106,21 @@ export class Game {
     async getStatus() {
         return this.#status
     }
-    async getPosition(entity){
+
+    async getPosition(entity) {
         return this.#gameEntities[entity].position
     }
-    async getPoints(entity){
+
+    async getPoints(entity) {
         return this.#gameEntities[entity].points
     }
-    async getSetting(setting){
-        return this.#settings[setting]
+
+    async getSettings() {
+        return this.#settings
     }
 
     async movePlayer(direction, player) {
+
         const delta = {
             x: 0, y: 0
         }
@@ -152,15 +152,15 @@ export class Game {
             return
         }
 
-        if(!this.#isPositionWithinGrid(newPosition)){
+        if (!this.#isPositionWithinGrid(newPosition)) {
             return;
         }
-        if (this.#isPositionBusy(newPosition, player)){
+        if (this.#isPositionBusy(newPosition, player)) {
             return;
         }
-        this.#observers.forEach(o => o())
         this.#gameEntities[player].position = newPosition;
         await this.#checkGoogleCatching(newPosition, player)
+        this.#observers.forEach(o => o())
     }
 
     #isPositionWithinGrid(position) {
@@ -169,16 +169,18 @@ export class Game {
             && position.y >= 0 && position.y < this.#settings.gridSize.rowsCount
         )
     }
+
     #isPositionBusy(position, player) {
         return position.isEqual(this.#gameEntities[player].position)
     }
-    async #checkGoogleCatching (position, player) {
-        if(this.#gameEntities.google.position.isEqual(position)){
+
+    async #checkGoogleCatching(position, player) {
+        if (this.#gameEntities.google.position.isEqual(position)) {
             this.#gameEntities[player].points += this.#settings.pointsForCapture
             clearInterval(this.#googleJumpIntervalId)
 
             const win = await this.#checkingForAWin(player)
-            if(!win){
+            if (!win) {
                 this.#gameEntities['google'].position = null
                 await this.#jumpGoogle()
                 await this.#runGoogleJumpInterval()
@@ -186,8 +188,8 @@ export class Game {
         }
     }
 
-    async #checkingForAWin (entity) {
-        if(this.#gameEntities[entity].points >= this.#settings.pointsToWin){
+    async #checkingForAWin(entity) {
+        if (this.#gameEntities[entity].points >= this.#settings.pointsToWin) {
             this.#status = GAME_STATUSES.FINISHED
 
             if (this.#googleJumpIntervalId) {
@@ -196,7 +198,7 @@ export class Game {
             }
             return true
         }
-        return  false
+        return false
     }
 
     stop() {
