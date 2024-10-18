@@ -12,7 +12,8 @@ export class Controller {
     constructor(view, model) {
         this.#view = view;
         this.#model = model;
-        this.#view.onStartGame = (settings) => this.startGame(settings)
+        this.#view.startGameCallback = (settings) => this.startGame(settings)
+        this.#view.movePlayerCallback = (direction, player) => this.movePlayer(direction, player)
     }
 
     async init() {
@@ -29,7 +30,7 @@ export class Controller {
     async mapModelToViewModelDTO() {
         return {
             status: await this.#model.getStatus(),
-            gridSize: await this.#model.getSetting('gridSize'),
+            settings: await this.#model.getSettings(),
             gameEntities: {
                 google: {
                     position: await this.#model.getPosition('google'),
@@ -51,6 +52,8 @@ export class Controller {
         await this.#model.start(settings)
     }
 
-    //функция хотьбы ('up', 'player1')
+    async movePlayer(direction, player){
+        await this.#model.movePlayer(direction, player)
+    }
 
 }
