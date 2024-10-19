@@ -1,17 +1,19 @@
 import {Position} from "./position.js";
 import {Entity} from "./entity/Entity.js";
-import {GAME_STATUSES} from "../comon/gameStatuses.js";
-import {MOVE_DIRECTIONS} from "../comon/moveDirections.js";
+import {GAME_STATUSES} from "../common/gameStatuses.js";
+import {MOVE_DIRECTIONS} from "../common/moveDirections.js";
+import {Winner} from "./winner/Winner.js";
+import {Stopwatch} from "./stopwatch/Stopwatch.js";
 
 export class Game {
     #status = GAME_STATUSES.PENDING
     #settings = {
         gridSize: {
-            rowsCount: 3,
-            columnsCount: 3
+            rowsCount: 5,
+            columnsCount: 5
         },
         jumpInterval: 1000, // milliseconds
-        pointsToWin: 20,
+        pointsToWin: 40,
         pointsForJump: 2,
         pointsForCapture: 5
     }
@@ -22,7 +24,8 @@ export class Game {
         player1: {},
         player2: {}
     }
-
+    #stopwatch
+    #winner = {}
     #observers = []
 
     addEventListener(subscriber) {
@@ -36,6 +39,7 @@ export class Game {
             player1: new Entity(),
             player2: new Entity()
         }
+        this.#stopwatch = new Stopwatch()
     }
 
     async setSettings(settings) {
@@ -99,6 +103,7 @@ export class Game {
         this.#status = GAME_STATUSES.IN_PROGRESS
         await this.#initPlayersPosition();
         await this.#jumpGoogle();
+        await this.#stopwatch.start()
         await this.#runGoogleJumpInterval();
     }
 
@@ -117,6 +122,12 @@ export class Game {
 
     async getSettings() {
         return this.#settings
+    }
+    async getWinner(){
+        return this.#winner
+    }
+    async getWatch(){
+        return this.#stopwatch.seconds
     }
 
     async movePlayer(direction, player) {
@@ -192,10 +203,13 @@ export class Game {
         if (this.#gameEntities[entity].points >= this.#settings.pointsToWin) {
             this.#status = GAME_STATUSES.FINISHED
 
+            this.#stopwatch.stop()
+
             if (this.#googleJumpIntervalId) {
                 clearInterval(this.#googleJumpIntervalId)
                 this.#googleJumpIntervalId = null
             }
+            this.#winner = new Winner(entity, await this.getPoints(entity), this.#stopwatch.seconds)
             return true
         }
         return false
