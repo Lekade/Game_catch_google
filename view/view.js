@@ -1,5 +1,6 @@
-import {GAME_STATUSES} from "../comon/gameStatuses.js";
-import {MOVE_DIRECTIONS} from "../comon/moveDirections.js";
+import {GAME_STATUSES} from "../common/gameStatuses.js";
+import {MOVE_DIRECTIONS} from "../common/moveDirections.js";
+import {clockShaper} from "./clockShaper/clockShaper.js";
 
 
 export class View {
@@ -53,17 +54,21 @@ export class View {
     }
 
     resultTable = [
-        {title: 'Player 1', imgSrc: 'ksdjfksdfj', name: 'player1'},
-        {title: 'Player 2', imgSrc: 'ksdjfksdfj', name: 'player2'},
-        {title: 'Google', imgSrc: 'ksdjfksdfj', name: 'google'}
+        {title: 'Player 1', imgSrc: '../assets/img/icons/man01.svg', name: 'player1'},
+        {title: 'Player 2', imgSrc: '../assets/img/icons/man02.svg', name: 'player2'},
+        {title: 'Google', imgSrc: '../assets/img/icons/googleIcon.svg', name: 'google'}
     ]
 
     #startGameHandler
     #movePlayerHandler
+    #clockShaper
 
 
     constructor(elementId) {
+        this.#clockShaper = new  clockShaper()
+
         this.#rootElement = document.getElementById(elementId);
+
         document.addEventListener('keydown', this.keyDownHandler.bind(this));
     }
 
@@ -80,17 +85,17 @@ export class View {
 
     render(viewModelDTO) {
         this.#rootElement.innerHTML = ''
-        this.#settingsInitialization(viewModelDTO.status, viewModelDTO.settings)
+        if (viewModelDTO.status !== GAME_STATUSES.FINISHED) {
+            this.#settingsInitialization(viewModelDTO.status, viewModelDTO.settings)
+        }
 
         if (viewModelDTO.status === GAME_STATUSES.IN_PROGRESS) {
-            this.#gameResults(viewModelDTO.gameEntities)
+            this.#gameResults({...viewModelDTO.gameEntities, watch: this.#clockShaper.getTime(viewModelDTO.watch)})
             this.#rootElement.append(this.#gridBuilder(viewModelDTO.settings.gridSize, viewModelDTO.gameEntities))
         }
 
         if (viewModelDTO.status === GAME_STATUSES.FINISHED) {
-            const status = document.createElement('div')
-            status.textContent = viewModelDTO.status
-            this.#rootElement.append(status)
+            this.#resultModalCreator(viewModelDTO.winner)
         }
     }
 
@@ -105,7 +110,7 @@ export class View {
 
     #selectCreator(className, arrOptions) {
         const select = document.createElement('select')
-        select.className = className
+        select.className = 'settingsSelect'
         arrOptions.forEach(el => {
             const option = document.createElement('option');
             option.value = JSON.stringify(el.value)
@@ -119,26 +124,33 @@ export class View {
         const settingContainer = document.createElement('div')
         settingContainer.className = 'settingContainer'
         const titleSelect = document.createElement('span')
+        titleSelect.className = 'settingTitle'
         titleSelect.textContent = title
         const select = this.#selectCreator(className, this.#valuesData[settingName])
         select.id = settingName
+        select.className = 'settingSelect'
         select.addEventListener('change', (e) => {
             this.#changeSettings({[settingName]: JSON.parse(e.target.value)})
         })
         settingContainer.appendChild(titleSelect)
         settingContainer.appendChild(select)
-        this.#rootElement.appendChild(settingContainer)
-        return select
+        return {select, settingContainer}
     }
 
     #settingsInitialization(status, settings) {
-        const gridSizeSelector = this.#workingWithSelect('selector', 'gridSize', 'Grid size')
-        const pointsToWinSelector = this.#workingWithSelect('selector', 'pointsToWin', 'Points to win')
-        const pointsForJumpSelector = this.#workingWithSelect('selector', 'pointsForJump', 'Points for jump G')
-        const pointsForCaptureSelector = this.#workingWithSelect('selector', 'pointsForCapture', 'Points for capture')
+        const settingsWrapper = document.createElement('div')
+        settingsWrapper.className = 'settingsWrapper'
+        const {select:gridSizeSelector , settingContainer: setContainer1 } = this.#workingWithSelect('selector', 'gridSize', 'Grid size')
+        const {select:pointsToWinSelector, settingContainer: setContainer2 } = this.#workingWithSelect('selector', 'pointsToWin', 'Points to win')
+        const {select:pointsForJumpSelector, settingContainer: setContainer3 } = this.#workingWithSelect('selector', 'pointsForJump', 'Points for jump G')
+        const {select:pointsForCaptureSelector, settingContainer: setContainer4 } = this.#workingWithSelect('selector', 'pointsForCapture', 'Points for capture')
+
+        settingsWrapper.append(setContainer1, setContainer2, setContainer3, setContainer4)
+        this.#rootElement.appendChild(settingsWrapper)
 
         if (status === GAME_STATUSES.PENDING) {
             const startBtn = document.createElement('button')
+            startBtn.className = 'btn startGame'
             startBtn.append('START GAME')
             startBtn.addEventListener('click', () => {
                 this.#startGameHandler()
@@ -157,9 +169,10 @@ export class View {
 
     #gameResults(results) {
         const resultsWrapper = document.createElement('ul')
+        resultsWrapper.className = 'resultsWrapper'
         this.resultTable.forEach(el => {
             const entity = document.createElement('li')
-
+            entity.className = 'resultTableEntity'
             const title = document.createElement('span')
             title.className = 'resultTableTitle'
             title.append(el.title)
@@ -171,18 +184,21 @@ export class View {
             entity.appendChild(img)
 
             const points = document.createElement('span')
+            points.className = 'resultTablePoint'
             points.append(results[el.name].points)
             entity.appendChild(points)
             resultsWrapper.appendChild(entity)
         })
 
         const gameTime = document.createElement('li')
+        gameTime.className = 'resultTableEntity'
         const titleTime = document.createElement('span')
         titleTime.className = 'resultTableTitle'
         titleTime.append('Time')
         gameTime.appendChild(titleTime)
         const time = document.createElement('span')
-        time.append('00:00')
+        time.className = 'resultTablePoint'
+        time.append(results.watch)
         gameTime.appendChild(time)
         resultsWrapper.appendChild(gameTime)
         this.#rootElement.appendChild(resultsWrapper)
@@ -192,23 +208,27 @@ export class View {
         const {google, player1, player2} = gameEntities
 
         const gridEl = document.createElement('table')
+        gridEl.className = 'gameField'
         for (let y = 0; y < gridSize.columnsCount; y++) {
             const rowEl = document.createElement('tr')
             for (let x = 0; x < gridSize.rowsCount; x++) {
                 const cellEl = document.createElement('td')
                 if (google.position && google.position.x === x && google.position.y === y) {
-                    const googleEl = document.createTextNode('G')
-                    googleEl.className = 'google'
+                    const googleEl = document.createElement('img')
+                    googleEl.src = '../assets/img/icons/googleIcon.svg'
+                    googleEl.className = 'entity'
                     cellEl.appendChild(googleEl)
                 }
                 if (player1.position.x === x && player1.position.y === y) {
-                    const player1El = document.createTextNode('1')
-                    player1El.className = 'player1'
+                    const player1El = document.createElement('img')
+                    player1El.src = '../assets/img/icons/man01.svg'
+                    player1El.className = 'entity'
                     cellEl.appendChild(player1El)
                 }
                 if (player2.position.x === x && player2.position.y === y) {
-                    const player2El = document.createTextNode('2')
-                    player2El.className = 'player2'
+                    const player2El = document.createElement('img')
+                    player2El.src = '../assets/img/icons/man02.svg'
+                    player2El.className = 'entity'
                     cellEl.appendChild(player2El)
                 }
 
@@ -217,5 +237,47 @@ export class View {
             gridEl.append(rowEl)
         }
         return gridEl
+    }
+
+    #resultModalCreator(winner){
+        const modal = document.createElement('div')
+        modal.className = 'modal'
+
+        const modalDecoration = document.createElement('div')
+        modalDecoration.className = 'modal-decoration'
+        const imgDecoration = document.createElement('img')
+        imgDecoration.src = winner.name === 'google' ? '../assets/img/icons/lossIcon.svg' : '../assets/img/icons/winnerIcon.svg'
+        modalDecoration.appendChild(imgDecoration)
+
+
+        const modalElement = document.createElement('div')
+        modalElement.className = 'modal-elements'
+
+        const titleModal = document.createElement('div')
+        titleModal.className = 'title-modal'
+        titleModal.append(`${winner.name} Win!`)
+
+        const modalResult = document.createElement('div')
+        modalResult.className = 'modal-result';
+
+        ['Points', winner.points, 'Time', this.#clockShaper.getTime(winner.time)].forEach(el=>{
+            const resultEl = document.createElement('div')
+            resultEl.className = 'result-el'
+            resultEl.append(el)
+            modalResult.appendChild(resultEl)
+        })
+
+        const playAgainBtn = document.createElement('button')
+        playAgainBtn.className = 'btn'
+        playAgainBtn.append('Play again')
+
+        const goToSettings = document.createElement('button')
+        goToSettings.className = 'btn'
+        goToSettings.append('Go to settings')
+
+        modalElement.append(titleModal, modalResult, playAgainBtn, goToSettings)
+
+        modal.append(modalDecoration, modalElement)
+        this.#rootElement.appendChild(modal)
     }
 }
