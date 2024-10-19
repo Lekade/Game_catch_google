@@ -1,0 +1,262 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+*,
+:before,
+:after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+a, a:link, a:visited, a:hover {
+    text-decoration: none;
+}
+
+ul, ul li {
+    list-style: none;
+}
+
+
+/* Common //======================================================================================================================================================== */
+
+.btn {
+    display: inline-flex;
+    width: fit-content;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 24px;
+    padding: 12px 36px;
+    border-radius: 10px 2px;
+    border: 2px solid #75F94C;
+    background-color: #58BF39;
+    box-shadow: 0 4px 10px 2px rgba(88, 191, 57, 0.25), 0 -4px 10px 2px rgba(88, 191, 57, 0.25);
+    transition: background-color 0.3s ease 0s;
+    z-index: 20;
+    cursor: pointer;
+    color: #FFFFFF;
+}
+
+.btn:hover {
+    background-color: #5dda3c;
+}
+
+
+#app {
+    padding: 24px 64px;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-image: url("../img/background.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    font-family: Roboto, sans-serif;
+}
+
+/* Settings //======================================================================================================================================================== */
+
+.settingsWrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.settingContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 352px;
+}
+
+.settingTitle {
+    color: #B6FDE5;
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 24px;
+}
+
+.settingSelect {
+    background-color: #191A1C;
+    padding: 6px 12px 6px 12px;
+    border: none;
+    border-right: 10px solid #191A1C;
+    border-radius: 5px;
+    outline: #191A1C;
+
+    color: #FFFFFF;
+    font-family: Roboto, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    cursor: pointer;
+}
+
+.settingSelect option {
+    border: none;
+}
+
+.btn.startGame {
+    margin: 35vh auto 0;
+}
+
+/* Table points //======================================================================================================================================================== */
+
+.resultsWrapper {
+    width: 100%;
+    max-width: 1040px;
+    margin: 36px auto;
+    padding: 12px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none;
+    border: 1px solid rgb(76, 94, 80);
+    border-radius: 30px;
+    background: rgba(57, 61, 55, 0.4);
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.resultTableEntity {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.resultTableTitle {
+    color: #FFFFFF;
+    font-family: Roboto, sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 24px;
+}
+
+.resultTableImg {
+    width: 48px;
+    height: 48px;
+}
+
+.resultTablePoint {
+    min-width: 30px;
+    color: #FFFFFF;
+    font-family: Roboto, sans-serif;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 24px;
+}
+
+
+/* gameField //======================================================================================================================================================== */
+
+.gameField {
+    margin: 100px auto 0;
+    border-collapse: separate;
+    border-spacing: 12px;
+}
+
+.gameField td {
+    width: 85px;
+    height: 84px;
+    border: 2px solid rgb(153, 155, 149);
+    border-radius: 5px;
+    background: rgba(110, 117, 102, 0.3);
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.entity{
+    width: 48px;
+    height: 48px;
+}
+
+/* Modal //======================================================================================================================================================== */
+
+.modal {
+    margin: 0 auto;
+    position: relative;
+    max-width: 280px;
+    max-height: 550px;
+    color: #FFFFFF;
+}
+
+.modal-elements {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    align-self: center;
+    position: relative;
+    padding: 71px 24px 36px;
+    width: 280px;
+    height: 407px;
+    text-align: center;
+    z-index: 10;
+}
+
+.modal-elements::before {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    background-image: url('../img/icons/t-ShirtIcon.svg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    z-index: -1;
+}
+
+.modal-decoration {
+    position: relative;
+    top: 53px;
+    left: 68px;
+    width: 144px;
+    height: 144px;
+    border: 2px solid #999B95;
+    background-color: rgba(110, 117, 102, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.title-modal {
+    font-family: Roboto, sans-serif;
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 60px;
+    text-transform: capitalize;
+}
+
+.modal-result {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom:10px;
+}
+
+.result-el{
+    width: 43%;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 24px;
+    text-align: left;
+}
+
+.result-el:nth-child(even){
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 24px;
+    text-align: right;
+}
+
+
