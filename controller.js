@@ -44,7 +44,9 @@ export class Controller {
                     position: await this.#model.getPosition('player2'),
                     points: await this.#model.getPoints('player2')
                 }
-            }
+            },
+            watch:  await this.#model. getWatch(),
+            winner: await this.#model.getWinner()
         };
     }
 
