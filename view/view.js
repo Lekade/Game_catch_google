@@ -5,16 +5,6 @@ import {clockShaper} from "./clockShaper/clockShaper.js";
 
 export class View {
     #rootElement;
-    settings = {
-        gridSize: {
-            rowsCount: 3,
-            columnsCount: 3
-        },
-        jumpInterval: 1000,
-        pointsToWin: 20,
-        pointsForJump: 2,
-        pointsForCapture: 5
-    }
     #valuesData = {
         gridSize: [
             {content: '3x3', value: {rowsCount: 3, columnsCount: 3}},
@@ -58,10 +48,12 @@ export class View {
         {title: 'Player 2', imgSrc: '../assets/img/icons/man02.svg', name: 'player2'},
         {title: 'Google', imgSrc: '../assets/img/icons/googleIcon.svg', name: 'google'}
     ]
-
+    #setSettingsHandler
     #startGameHandler
     #movePlayerHandler
     #clockShaper
+    #nextGameHandler
+    #backToSettingsHandler
 
 
     constructor(elementId) {
@@ -79,8 +71,20 @@ export class View {
         }
     }
 
+    set setSettingsCallback(callback){
+        this.#setSettingsHandler = (settings) =>  callback(settings)
+    }
+
     set movePlayerCallback(callback) {
         this.#movePlayerHandler = (direction, player) => callback(direction, player)
+    }
+
+    set nextGameCallback (callback){
+        this.#nextGameHandler = callback
+    }
+
+    set backToSettingsCallback (callback){
+        this.#backToSettingsHandler = callback
     }
 
     render(viewModelDTO) {
@@ -100,15 +104,12 @@ export class View {
     }
 
     set startGameCallback(callback) {
-        this.#startGameHandler = () => callback(this.settings)
+        this.#startGameHandler = callback
     }
 
     //-------------------------------------------Select
-    #changeSettings(newValue) {
-        this.settings = {...this.settings, ...newValue}
-    }
 
-    #selectCreator(className, arrOptions) {
+    #selectCreator(arrOptions) {
         const select = document.createElement('select')
         select.className = 'settingsSelect'
         arrOptions.forEach(el => {
@@ -120,17 +121,18 @@ export class View {
         return select
     }
 
-    #workingWithSelect(className, settingName, title) {
+    #workingWithSelect(settings, settingName, title) {
         const settingContainer = document.createElement('div')
         settingContainer.className = 'settingContainer'
         const titleSelect = document.createElement('span')
         titleSelect.className = 'settingTitle'
         titleSelect.textContent = title
-        const select = this.#selectCreator(className, this.#valuesData[settingName])
+        const select = this.#selectCreator(this.#valuesData[settingName])
         select.id = settingName
         select.className = 'settingSelect'
+        select.value = JSON.stringify(settings[settingName])
         select.addEventListener('change', (e) => {
-            this.#changeSettings({[settingName]: JSON.parse(e.target.value)})
+            this.#setSettingsHandler({...settings, [settingName]: JSON.parse(e.target.value)})
         })
         settingContainer.appendChild(titleSelect)
         settingContainer.appendChild(select)
@@ -140,10 +142,10 @@ export class View {
     #settingsInitialization(status, settings) {
         const settingsWrapper = document.createElement('div')
         settingsWrapper.className = 'settingsWrapper'
-        const {select:gridSizeSelector , settingContainer: setContainer1 } = this.#workingWithSelect('selector', 'gridSize', 'Grid size')
-        const {select:pointsToWinSelector, settingContainer: setContainer2 } = this.#workingWithSelect('selector', 'pointsToWin', 'Points to win')
-        const {select:pointsForJumpSelector, settingContainer: setContainer3 } = this.#workingWithSelect('selector', 'pointsForJump', 'Points for jump G')
-        const {select:pointsForCaptureSelector, settingContainer: setContainer4 } = this.#workingWithSelect('selector', 'pointsForCapture', 'Points for capture')
+        const {select:gridSizeSelector , settingContainer: setContainer1 } = this.#workingWithSelect(settings, 'gridSize', 'Grid size')
+        const {select:pointsToWinSelector, settingContainer: setContainer2 } = this.#workingWithSelect(settings, 'pointsToWin', 'Points to win')
+        const {select:pointsForJumpSelector, settingContainer: setContainer3 } = this.#workingWithSelect(settings, 'pointsForJump', 'Points for jump G')
+        const {select:pointsForCaptureSelector, settingContainer: setContainer4 } = this.#workingWithSelect(settings, 'pointsForCapture', 'Points for capture')
 
         settingsWrapper.append(setContainer1, setContainer2, setContainer3, setContainer4)
         this.#rootElement.appendChild(settingsWrapper)
@@ -152,9 +154,7 @@ export class View {
             const startBtn = document.createElement('button')
             startBtn.className = 'btn startGame'
             startBtn.append('START GAME')
-            startBtn.addEventListener('click', () => {
-                this.#startGameHandler()
-            })
+            startBtn.addEventListener('click', this.#startGameHandler)
             this.#rootElement.appendChild(startBtn)
         }
 
@@ -270,10 +270,12 @@ export class View {
         const playAgainBtn = document.createElement('button')
         playAgainBtn.className = 'btn'
         playAgainBtn.append('Play again')
+        playAgainBtn.addEventListener('click', this.#nextGameHandler)
 
         const goToSettings = document.createElement('button')
         goToSettings.className = 'btn'
         goToSettings.append('Go to settings')
+        goToSettings.addEventListener('click', this.#backToSettingsHandler)
 
         modalElement.append(titleModal, modalResult, playAgainBtn, goToSettings)
 
