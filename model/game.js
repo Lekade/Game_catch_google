@@ -218,4 +218,21 @@ export class Game {
     stop() {
         clearInterval(this.#googleJumpIntervalId)
     }
+
+    async #reset(){
+        this.#gameEntities.google.reset()
+        this.#gameEntities.player1.reset()
+        this.#gameEntities.player2.reset()
+    }
+
+    async nextGame(){
+        await this.#reset()
+        await this.start()
+    }
+
+    async backToSettings(){
+        await this.#reset()
+        this.#status = GAME_STATUSES.PENDING
+        this.#observers.forEach(o => o())
+    }
 }

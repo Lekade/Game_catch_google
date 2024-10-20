@@ -12,8 +12,11 @@ export class Controller {
     constructor(view, model) {
         this.#view = view;
         this.#model = model;
-        this.#view.startGameCallback = (settings) => this.startGame(settings)
+        this.#view.startGameCallback = () => this.startGame()
         this.#view.movePlayerCallback = (direction, player) => this.movePlayer(direction, player)
+        this.#view.nextGameCallback = () => this.nextGame()
+        this.#view.backToSettingsCallback = () => this.backToSettings()
+        this.#view.setSettingsCallback = (settings) => this.setSettings(settings)
     }
 
     async init() {
@@ -50,12 +53,24 @@ export class Controller {
         };
     }
 
+    async setSettings(settings){
+        await this.#model.setSettings(settings)
+    }
+
     async startGame(settings){
         await this.#model.start(settings)
     }
 
     async movePlayer(direction, player){
         await this.#model.movePlayer(direction, player)
+    }
+
+    async nextGame(){
+        await this.#model.nextGame()
+    }
+
+    async backToSettings(){
+        await this.#model.backToSettings()
     }
 
 }
