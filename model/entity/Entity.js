@@ -17,4 +17,8 @@ export class Entity {
     set points(updatedPoints){
         this.#points = updatedPoints
     }
+    reset(){
+        this.position = null
+        this.points = 0
+    }
 }
