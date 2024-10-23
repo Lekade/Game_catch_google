@@ -16,7 +16,7 @@ export class Controller {
         this.#view.movePlayerCallback = (direction, player) => this.movePlayer(direction, player)
         this.#view.nextGameCallback = () => this.nextGame()
         this.#view.backToSettingsCallback = () => this.backToSettings()
-        this.#view.setSettingsCallback = (settings) => this.setSettings(settings)
+        this.#view.setSettingCallback = (settingName, value) => this.setSetting(settingName, value)
     }
 
     async init() {
@@ -33,44 +33,35 @@ export class Controller {
     async mapModelToViewModelDTO() {
         return {
             status: await this.#model.getStatus(),
-            settings: await this.#model.getSettings(),
+            settings: await this.#model.settings.getSettings(),
             gameEntities: {
-                google: {
-                    position: await this.#model.getPosition('google'),
-                    points: await this.#model.getPoints('google')
-                },
-                player1: {
-                    position: await this.#model.getPosition('player1'),
-                    points: await this.#model.getPoints('player1')
-                },
-                player2:  {
-                    position: await this.#model.getPosition('player2'),
-                    points: await this.#model.getPoints('player2')
-                }
+                google: await this.#model.getEntity('google'),
+                player1: await this.#model.getEntity('player1'),
+                player2: await this.#model.getEntity('player2')
             },
             watch:  await this.#model. getWatch(),
             winner: await this.#model.getWinner()
         };
     }
 
-    async setSettings(settings){
-        await this.#model.setSettings(settings)
+    async setSetting(settingName, value){
+        await this.#model.settings.setSetting(settingName, value)
     }
 
-    async startGame(settings){
-        await this.#model.start(settings)
+    async startGame(){
+        await this.#model.lifeCycleManager.start()
     }
 
     async movePlayer(direction, player){
-        await this.#model.movePlayer(direction, player)
+        await this.#model.playerMoveManager.movePlayer(direction, player)
     }
 
     async nextGame(){
-        await this.#model.nextGame()
+        await this.#model.lifeCycleManager.nextGame()
     }
 
     async backToSettings(){
-        await this.#model.backToSettings()
+        await this.#model.lifeCycleManager.backToSettings()
     }
 
 }
