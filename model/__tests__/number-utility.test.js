@@ -1,4 +1,4 @@
-import { NumberUtility } from '../number-utility.js';
+import { NumberUtility } from '../positionManager/number-utility.js';
 
 describe('NumberUtility', () => {
     let numberUtility;

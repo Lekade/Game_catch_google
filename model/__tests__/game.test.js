@@ -1,6 +1,6 @@
 import {Game} from "../game.js";
-import {NumberUtility} from "../number-utility.js";
-import {Position} from "../position.js";
+import {NumberUtility} from "../positionManager/number-utility.js";
+import {Position} from "../positionManager/position.js";
 import {MOVE_DIRECTIONS} from "../../common/moveDirections.js";
 import {GAME_STATUSES} from "../../common/gameStatuses.js";
 
@@ -39,7 +39,7 @@ describe("Game", () => {
     })
 
     afterEach(async () => {
-        game.stop();
+        game.lifeCycleManager.stop();
     })
 
     it("should return Pending status as inital", async () => {
@@ -48,21 +48,20 @@ describe("Game", () => {
     })
 
     it("should return In-progress status after start()", async () => {
-        await game.start()
+        await game.lifeCycleManager.start()
         let status = await game.getStatus()
         expect(status).toBe("IN-PROGRESS")
     })
 
     it("google should have random correct positions after start", async () => {
-        await game.setSettings({
-            gridSize: {
-                rowsCount: 3,
-                columnsCount: 4 // x
-            }
+        await game.settings.setSetting('gridSize', {
+            rowsCount: 3,
+            columnsCount: 4 // x
         })
-        await game.start()
-        let googlePosition = await game.getPosition('google')
-        let googlePosition2 = await game.getPosition('google')
+        await game.lifeCycleManager.start()
+        let googlePosition = (await game.getEntity('google')).position
+        debugger
+        let googlePosition2 = (await game.getEntity('google')).position
 
         expect(googlePosition).toBeEqualPosition(googlePosition2)
 
@@ -76,31 +75,28 @@ describe("Game", () => {
     it("google should have random correct positions after jump interval", async () => {
         for (let i = 0; i < 10; i++) {
             createGame()
-            await game.setSettings({
-                gridSize: {
+            await game.settings.setSetting('gridSize', {
                     rowsCount: 1,
                     columnsCount: 4 // x
-                },
-                jumpInterval: 10 // 3 seconds
-            })
-            await game.start()
-            let googlePosition = await game.getPosition('google')
+                })
+            await game.settings.setSetting('jumpInterval', 10)
+
+            await game.lifeCycleManager.start()
+            let googlePosition = (await game.getEntity('google')).position
             await delay(10)
-            let googlePosition2 = await game.getPosition('google')
+            let googlePosition2 = (await game.getEntity('google')).position
             expect(googlePosition2).not.toBeEqualPosition(googlePosition)
-            game.stop()
+            game.lifeCycleManager.stop()
         }
     })
 
     it("player1 should have random correct positions inside grid after start", async () => {
-        await game.setSettings({
-            gridSize: {
+        await game.settings.setSetting('gridSize', {
                 rowsCount: 3,
                 columnsCount: 4 // x
-            }
         })
-        await game.start()
-        let player1Position = await game.getPosition('player1')
+        await game.lifeCycleManager.start()
+        let player1Position = (await game.getEntity('player1')).position
         expect(player1Position.x).toBeGreaterThanOrEqual(0)
         expect(player1Position.x).toBeLessThanOrEqual(3)
 
@@ -108,23 +104,19 @@ describe("Game", () => {
         expect(player1Position.y).toBeLessThanOrEqual(2)
     })
 
-    it("player1 should have random correct position not crossed with google after start", async () => {
+    it("player1 should have random correct positionManager not crossed with google after start", async () => {
         for (let i = 0; i < 40; i++) {
             createGame()
 
-            await game.setSettings({
-                gridSize: {
+            await game.settings.setSetting('gridSize', {
                     rowsCount: 4,
                     columnsCount: 1 // x
-                }
             })
-            await game.start()
-            let googlePosition = await game.getPosition('google')
-            let player1Position = await game.getPosition('player1')
+            await game.lifeCycleManager.start()
+            let googlePosition = (await game.getEntity('google')).position
+            let player1Position = (await game.getEntity('player1')).position
 
             expect(player1Position).not.toBeEqualPosition(googlePosition)
-
-            game.stop()
         }
     })
 
@@ -137,86 +129,84 @@ describe("Game", () => {
         ], '1')
         const game = new Game(numberUtil);
 
-        await game.setSettings({
-            gridSize: {
+        await game.settings.setSetting('gridSize', {
                 rowsCount: 3,
                 columnsCount: 3 // x
-            }
         })
 
-        await game.start()
-        let position = await game.getPosition('player1')
-        let googlePosition = await game.getPosition('google')
+        await game.lifeCycleManager.start()
+        let position = (await game.getEntity('player1')).position
+        let googlePosition = (await game.getEntity('google')).position
         expect(position).toBeEqualPosition(new Position(2,2))
         expect(googlePosition).toBeEqualPosition(new Position(0,2))
         // [  ][  ][p2]
         // [  ][  ][  ]
         // [ g][  ][p1]
         // ===========
-        await game.movePlayer(MOVE_DIRECTIONS.DOWN, 'player1')
-        position = await game.getPosition('player1')
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.DOWN, 'player1')
+        position = (await game.getEntity('player1')).position
         expect(position).toBeEqualPosition(new Position(2, 2));
         // [  ][  ][p2]
         // [  ][  ][  ]
         // [ g][  ][p1]
         // ===========
-        await game.movePlayer(MOVE_DIRECTIONS.RIGHT, 'player1')
-        position = await game.getPosition('player1')
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.RIGHT, 'player1')
+        position = (await game.getEntity('player1')).position
         expect(position).toBeEqualPosition(new Position(2, 2))
         // [  ][  ][p2]
         // [  ][  ][  ]
         // [ g][  ][p1]
         // ===========
-        await game.movePlayer(MOVE_DIRECTIONS.UP, 'player1')
-        position = await game.getPosition('player1')
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.UP, 'player1')
+        position = (await game.getEntity('player1')).position
         expect(position).toBeEqualPosition(new Position(2, 1))
         // [  ][  ][p2]
         // [  ][  ][p1]
         // [ g][  ][  ]
         // ===========
-        await game.movePlayer(MOVE_DIRECTIONS.LEFT, 'player1')
-        position = await game.getPosition('player1')
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.LEFT, 'player1')
+        position = (await game.getEntity('player1')).position
         expect(position).toBeEqualPosition(new Position(1, 1))
         // [  ][  ][p2]
         // [  ][p1][  ]
         // [ g][  ][  ]
         // ===========
-        await game.movePlayer(MOVE_DIRECTIONS.UP, 'player1')
-        position = await game.getPosition('player1')
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.UP, 'player1')
+        position = (await game.getEntity('player1')).position
         expect(position).toBeEqualPosition(new Position(1, 0))
         // [  ][p1][p2]
         // [  ][  ][  ]
         // [ g][  ][  ]
         // ===========
-        await game.movePlayer(MOVE_DIRECTIONS.UP, 'player1')
-        position = await game.getPosition('player1')
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.UP, 'player1')
+        position = (await game.getEntity('player1')).position
         expect(position).toBeEqualPosition(new Position(1, 0))
         // [  ][p1][p2]
         // [  ][  ][  ]
         // [ g][  ][  ]
         // ===========
-        await game.movePlayer(MOVE_DIRECTIONS.LEFT, 'player1')
-        position = await game.getPosition('player1')
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.LEFT, 'player1')
+        position = (await game.getEntity('player1')).position
         expect(position).toBeEqualPosition(new Position(0, 0))
         // [p1][  ][p2]
         // [  ][  ][  ]
         // [ g][  ][  ]
         // ===========
-        await game.movePlayer(MOVE_DIRECTIONS.LEFT, 'player1')
-        position = await game.getPosition('player1')
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.LEFT, 'player1')
+        position = (await game.getEntity('player1')).position
         expect(position).toBeEqualPosition(new Position(0, 0))
         // [p1][  ][p2]
         // [  ][  ][  ]
         // [ g][  ][  ]
         // ===========
-        await game.movePlayer(MOVE_DIRECTIONS.DOWN, 'player1')
-        position = await game.getPosition('player1')
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.DOWN, 'player1')
+        position = (await game.getEntity('player1')).position
         expect(position).toBeEqualPosition(new Position(0, 1))
         // [  ][  ][p2]
         // [p1][  ][  ]
         // [ g][  ][  ]
         // ===========
-        await game.stop()
+        await game.lifeCycleManager.stop()
     })
     //
     it("should award points to player1 for catching Google but not finish the game if points are less than pointsToWin", async () => {
@@ -229,39 +219,37 @@ describe("Game", () => {
         const game = new Game(numberUtil);
 
         // Настраиваем игру с требуемыми баллами для победы
-        await game.setSettings({
-            gridSize: { rowsCount: 3, columnsCount: 3 },
-            pointsToWin: 10,
-            pointsForCapture: 3
-        });
+        await game.settings.setSetting('gridSize', { rowsCount: 3, columnsCount: 3 })
+        await game.settings.setSetting('pointsToWin', 10)
+        await game.settings.setSetting('pointsForCapture', 3)
 
-        await game.start();
+        await game.lifeCycleManager.start();
 
         // Проверяем стартовые позиции
-        let player1Position = await game.getPosition('player1');
-        let googlePosition = await game.getPosition('google');
+        let player1Position = (await game.getEntity('player1')).position;
+        let googlePosition = (await game.getEntity('google')).position;
         expect(player1Position).toBeEqualPosition(new Position(2, 2));
         expect(googlePosition).toBeEqualPosition(new Position(0, 0));
 
         // Передвигаем player1 на позицию гугла
-        await game.movePlayer(MOVE_DIRECTIONS.UP, 'player1'); // 2, 1
-        await game.movePlayer(MOVE_DIRECTIONS.LEFT, 'player1'); // 1, 1 (1ый наступает на игрока 2)???
-        await game.movePlayer(MOVE_DIRECTIONS.UP, 'player1'); // 1, 0
-        await game.movePlayer(MOVE_DIRECTIONS.LEFT, 'player1'); // 0, 0 (ловит Google)
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.UP, 'player1'); // 2, 1
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.LEFT, 'player1'); // 1, 1 (1ый наступает на игрока 2)???
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.UP, 'player1'); // 1, 0
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.LEFT, 'player1'); // 0, 0 (ловит Google)
 
         // Проверяем, что игрок поймал Google
-        player1Position = await game.getPosition('player1');
-        googlePosition = await game.getPosition('google');
+        player1Position = (await game.getEntity('player1')).position;
+        googlePosition = (await game.getEntity('google')).position;
         expect(player1Position).toBeEqualPosition(new Position(0, 0)); // Игрок на позиции гугла
         expect(googlePosition).not.toBeEqualPosition(player1Position); // Гугл переместился
 
         // Проверяем очки игрока и статус игры
 
-        const player1Points = await game.getPoints('player1');
+        const player1Points = (await game.getEntity('player1')).points;
         expect(player1Points).toBe(3); // 3 очка за поимку
         const gameStatus = await game.getStatus();
         expect(gameStatus).toBe(GAME_STATUSES.IN_PROGRESS); // Игра продолжается
-        await game.stop()
+        await game.lifeCycleManager.stop()
     });
 
     it("Google jumps multiple times and wins the game", async () => {
@@ -274,31 +262,26 @@ describe("Game", () => {
         ], '3');
         const game = new Game(numberUtil);
 
-        await game.setSettings({
-            gridSize: {
-                rowsCount: 3,
-                columnsCount: 3,
-            },
-            pointsForJump: 5,  // За каждый прыжок Google получает 5 очков
-            pointsToWin: 10,   // Для победы нужно 10 очков
-            jumpInterval: 10,  // Быстрый интервал для теста
-        });
+        await game.settings.setSetting('gridSize', { rowsCount: 3, columnsCount: 3 })
+        await game.settings.setSetting('pointsForJump', 5)// За каждый прыжок Google получает 5 очков
+        await game.settings.setSetting('pointsToWin', 10)// Для победы нужно 10 очков
+        await game.settings.setSetting('jumpInterval', 10)// Быстрый интервал для теста
 
-        await game.start();
+        await game.lifeCycleManager.start();
 
-        let googlePoints = await game.getPoints('google');
+        let googlePoints = (await game.getEntity('google')).points;
         expect(googlePoints).toBe(0);  // Изначально у Google 0 баллов
 
         // Ждем первый прыжок
         await delay(10) // Ждем чуть больше времени, чем jumpInterval
-        googlePoints = await game.getPoints('google');
+        googlePoints = (await game.getEntity('google')).points;
         expect(googlePoints).toBe(5);  // Google получает 5 баллов за первый прыжок
         let status = await game.getStatus();
         expect(status).toBe('IN-PROGRESS');  // Игра продолжается
 
         // Ждем второй прыжок
         await delay(10);
-        googlePoints = await game.getPoints('google');
+        googlePoints = (await game.getEntity('google')).points;
         expect(googlePoints).toBe(10);  // Google получает еще 5 баллов и теперь у него 10
         status = await game.getStatus();
         expect(status).toBe('FINISHED');  // Игра закончилась, Google победил
@@ -313,39 +296,34 @@ describe("Game", () => {
         ], '4');
         const game = new Game(numberUtil);
 
-        await game.setSettings({
-            gridSize: {
-                rowsCount: 3,
-                columnsCount: 3,
-            },
-            pointsForCapture: 5,  // За поймание Google игрок получает 5 очков
-            pointsForJump: 2,
-            pointsToWin: 10,    // Для победы нужно 10 очков
-            jumpInterval: 10,   // Быстрый интервал для теста
-        });
+        await game.settings.setSetting('gridSize', { rowsCount: 3, columnsCount: 3 })
+        await game.settings.setSetting('pointsForCapture', 5)// За поймание Google игрок получает 5 очков
+        await game.settings.setSetting('pointsForJump', 5)
+        await game.settings.setSetting('pointsToWin', 10)// Для победы нужно 10 очков
+        await game.settings.setSetting('jumpInterval', 10)// Быстрый интервал для теста
 
-        await game.start();
+        await game.lifeCycleManager.start();
 
-        let player1Points = await game.getPoints('player1');
+        let player1Points = (await game.getEntity('player1')).points;
         expect(player1Points).toBe(0);  // Изначально у игрока 0 очков
 
         // Игрок делает первый шаг и ловит Google
-        await game.movePlayer(MOVE_DIRECTIONS.LEFT, 'player1');
-        player1Points = await game.getPoints('player1');
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.LEFT, 'player1');
+        player1Points = (await game.getEntity('player1')).points;
         expect(player1Points).toBe(5);  // Игрок получает 5 очков за поимку Google
 
         let status = await game.getStatus();
         expect(status).toBe('IN-PROGRESS');  // Игра продолжается
 
         // Ждем, пока Google сделает свой прыжок
-        let googlePosition = await game.getPosition('google');
+        let googlePosition = (await game.getEntity('google')).position;
         expect(googlePosition).toBeEqualPosition(new Position(1, 1));  // Проверяем новую позицию Google
 
         // Игрок делает еще два шага, чтобы поймать Google снова
-        await game.movePlayer(MOVE_DIRECTIONS.DOWN, 'player1'); // Второй шаг
-        await game.movePlayer(MOVE_DIRECTIONS.RIGHT, 'player1'); // Третий шаг
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.DOWN, 'player1'); // Второй шаг
+        await game.playerMoveManager.movePlayer(MOVE_DIRECTIONS.RIGHT, 'player1'); // Третий шаг
 
-        player1Points = await game.getPoints('player1');
+        player1Points = (await game.getEntity('player1')).points;
         expect(player1Points).toBe(10);  // Игрок получает еще 5 очков за вторую поимку Google
 
         status = await game.getStatus();
