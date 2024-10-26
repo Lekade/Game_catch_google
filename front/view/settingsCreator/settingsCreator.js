@@ -1,4 +1,4 @@
-import {GAME_STATUSES} from "../../common/gameStatuses.js";
+import {GAME_STATUSES} from "../../../common/gameStatuses.js";
 
 export class SettingsCreator{
     #valuesData = {

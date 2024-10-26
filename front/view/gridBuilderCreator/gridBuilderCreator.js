@@ -10,23 +10,22 @@ export class GridBuilderCreator{
                 const cellEl = document.createElement('td')
                 if (google.position && google.position.x === x && google.position.y === y) {
                     const googleEl = document.createElement('img')
-                    googleEl.src = '../assets/img/icons/googleIcon.svg'
+                    googleEl.src = './front/assets/img/icons/googleIcon.svg'
                     googleEl.className = 'entity'
                     cellEl.appendChild(googleEl)
                 }
                 if (player1.position.x === x && player1.position.y === y) {
                     const player1El = document.createElement('img')
-                    player1El.src = '../assets/img/icons/man01.svg'
+                    player1El.src = './front/assets/img/icons/man01.svg'
                     player1El.className = 'entity'
                     cellEl.appendChild(player1El)
                 }
                 if (player2.position.x === x && player2.position.y === y) {
                     const player2El = document.createElement('img')
-                    player2El.src = '../assets/img/icons/man02.svg'
+                    player2El.src = './front/assets/img/icons/man02.svg'
                     player2El.className = 'entity'
                     cellEl.appendChild(player2El)
                 }
-
                 rowEl.append(cellEl)
             }
             gridEl.append(rowEl)

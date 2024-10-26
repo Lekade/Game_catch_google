@@ -1,4 +1,4 @@
-import {GAME_STATUSES} from "../common/gameStatuses.js";
+import {GAME_STATUSES} from "../../common/gameStatuses.js";
 import {clockShaper} from "./clockShaper/clockShaper.js";
 import {SettingsCreator} from "./settingsCreator/settingsCreator.js";
 import {GameResultsCreator} from "./gameResultsCreator/gameResultsCreator.js";

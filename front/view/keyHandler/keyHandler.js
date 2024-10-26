@@ -1,4 +1,4 @@
-import {MOVE_DIRECTIONS} from "../../common/moveDirections.js";
+import {MOVE_DIRECTIONS} from "../../../common/moveDirections.js";
 
 export class KeyHandler {
     keyMappings = {

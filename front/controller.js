@@ -39,7 +39,7 @@ export class Controller {
                 player1: await this.#model.getEntity('player1'),
                 player2: await this.#model.getEntity('player2')
             },
-            watch:  await this.#model. getWatch(),
+            watch:  await this.#model.getWatch(),
             winner: await this.#model.getWinner()
         };
     }

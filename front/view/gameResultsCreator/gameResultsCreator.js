@@ -1,8 +1,8 @@
 export class GameResultsCreator{
     resultTable = [
-        {title: 'Player 1', imgSrc: '../assets/img/icons/man01.svg', name: 'player1'},
-        {title: 'Player 2', imgSrc: '../assets/img/icons/man02.svg', name: 'player2'},
-        {title: 'Google', imgSrc: '../assets/img/icons/googleIcon.svg', name: 'google'}
+        {title: 'Player 1', imgSrc: './front/assets/img/icons/man01.svg', name: 'player1'},
+        {title: 'Player 2', imgSrc: './front/assets/img/icons/man02.svg', name: 'player2'},
+        {title: 'Google', imgSrc: './front/assets/img/icons/googleIcon.svg', name: 'google'}
     ]
     #rootElement
     constructor(rootElement) {

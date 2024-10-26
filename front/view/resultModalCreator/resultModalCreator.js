@@ -18,7 +18,7 @@ export class ResultModalCreator{
         const modalDecoration = document.createElement('div')
         modalDecoration.className = 'modal-decoration'
         const imgDecoration = document.createElement('img')
-        imgDecoration.src = winner.name === 'google' ? '../assets/img/icons/lossIcon.svg' : '../assets/img/icons/winnerIcon.svg'
+        imgDecoration.src = winner.name === 'google' ? './front/assets/img/icons/lossIcon.svg' : './front/assets/img/icons/winnerIcon.svg'
         modalDecoration.appendChild(imgDecoration)
 
 
