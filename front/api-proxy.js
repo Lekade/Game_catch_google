@@ -1,4 +1,4 @@
-import {SERVER_ACTION_TYPES} from "../common/serverActionTtypes.js";
+import {SERVER_ACTION_TYPES} from "../common/serverActionTypes.js";
 
 export class APIProxy {
     #socketTunnel;
