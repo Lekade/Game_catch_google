@@ -1,4 +1,4 @@
-import {MOVE_DIRECTIONS} from "../../common/moveDirections.js";
+import {MOVE_DIRECTIONS} from "../../../common/moveDirections.js";
 import {Position} from "../positionManager/position.js";
 
 export class PlayerMoveManager {

@@ -1,8 +1,8 @@
 import {Game} from "../game.js";
 import {NumberUtility} from "../positionManager/number-utility.js";
 import {Position} from "../positionManager/position.js";
-import {MOVE_DIRECTIONS} from "../../common/moveDirections.js";
-import {GAME_STATUSES} from "../../common/gameStatuses.js";
+import {MOVE_DIRECTIONS} from "../../../common/moveDirections.js";
+import {GAME_STATUSES} from "../../../common/gameStatuses.js";
 
 
 expect.extend({

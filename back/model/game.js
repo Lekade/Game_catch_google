@@ -1,5 +1,5 @@
 import {Entity} from "./entity/entity.js";
-import {GAME_STATUSES} from "../common/gameStatuses.js";
+import {GAME_STATUSES} from "../../common/gameStatuses.js";
 import {Winner} from "./winner/winner.js";
 import {Stopwatch} from "./stopwatch/stopwatch.js";
 import {Settings} from "./settings/settings.js";
