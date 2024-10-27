@@ -1,6 +1,5 @@
 {
   "name": "catch-google",
-  "homepage": "https://gitname.github.io/react-gh-pages",
   "version": "0.0.1",
   "type": "module",
   "main": "index.js",
@@ -9,9 +8,9 @@
     "start": "node ./back/server.js",
     "deploy": "gh-pages -d ."
   },
-  "author": "",
+  "author": "Lekade",
   "license": "ISC",
-  "description": "",
+  "description": "The game catch Google",
   "dependencies": {
     "@babel/preset-env": "^7.25.4",
     "babel-jest": "^29.7.0",
