@@ -4,7 +4,7 @@ export class APIProxy {
     #socketTunnel;
     #observers = []
 
-    constructor(url = 'wss://catchthegoogle.glitch.me') {
+    constructor(url = 'https://9785aae6-5e15-4a23-8464-0a7a00ab4c84-00-24479vpurl7yz.worf.replit.dev/') {
         this.#socketTunnel = new WebSocket(url);
 
         this.#socketTunnel.addEventListener('message', (event) => {
