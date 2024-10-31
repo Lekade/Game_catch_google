@@ -1,5 +1,6 @@
 import {MOVE_DIRECTIONS} from "../../../common/moveDirections.js";
 import {Position} from "../positionManager/position.js";
+import {GAME_STATUSES} from "../../../common/gameStatuses.js";
 
 export class PlayerMoveManager {
     #gameEntities
@@ -7,13 +8,15 @@ export class PlayerMoveManager {
     observers
     checkGoogleCatching
     newPosition
+    #status
 
-    constructor(gameEntities, settings, checkGoogleCatching, observer, newPosition) {
+    constructor(gameEntities, settings, checkGoogleCatching, observer, newPosition, status) {
         this.#gameEntities = gameEntities
         this.#settings = settings
         this.checkGoogleCatching = checkGoogleCatching
         this.observers = observer
         this.newPosition = newPosition
+        this.#status = status
     }
 
     async initPlayersPosition() {
@@ -30,6 +33,10 @@ export class PlayerMoveManager {
         this.observers.forEach(o => o())
     }
     async movePlayer(direction, player) {
+        debugger
+        if(this.#status.status !== GAME_STATUSES.IN_PROGRESS){
+            return
+        }
         const delta = {
             x: 0, y: 0
         }

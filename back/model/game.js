@@ -37,7 +37,7 @@ export class Game {
 
         this.googleManager = new GoogleManager(this.#gameEntities, this.settings, this.observers, this.positionManager.newPosition.bind(this), this.#checkingForAWin.bind(this))
 
-        this.playerMoveManager = new PlayerMoveManager(this.#gameEntities, this.settings, this.googleManager.checkGoogleCatching.bind(this.googleManager), this.observers, this.positionManager.newPosition.bind(this))
+        this.playerMoveManager = new PlayerMoveManager(this.#gameEntities, this.settings, this.googleManager.checkGoogleCatching.bind(this.googleManager), this.observers, this.positionManager.newPosition.bind(this), this.#status)
 
         this.lifeCycleManager = new LifeCycleManager(this.#status, this.#gameEntities, this.googleManager, this.playerMoveManager.initPlayersPosition.bind(this.playerMoveManager), this.#stopwatch.start.bind(this.#stopwatch), this.observers)
     }

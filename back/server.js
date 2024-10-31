@@ -1,3 +1,4 @@
+import { WebSocketServer } from 'ws';
 import {Game} from "./model/game.js";
 import {SERVER_ACTION_TYPES} from "../common/serverActionTypes.js";
 import {NumberUtility} from "./model/positionManager/number-utility.js";
@@ -69,3 +70,5 @@ server.on('connection', (ws) => {
         console.error(`WebSocket error: ${error.message}`);
     });
 });
+
+// node ./back/server.js
